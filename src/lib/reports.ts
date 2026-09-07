@@ -6,6 +6,7 @@ export interface ReportMetrics {
 }
 
 export interface ReportRecord {
+  gestationalDay?: number;
   source?: "live" | "demo";
   id: string;
   date: string;

@@ -46,7 +46,9 @@ export function ReportsTab({ records, onSave }: Props) {
     setBusy(true); setError(""); setResult(null); setSaved(false); setMessages([demo ? "正在提交演示请求" : "正在提交图片"]);
     try {
       const parsed = await parseImageRequest({ kind, ...(demo ? { demo: true } : { imageDataUrl: image }) }, message => setMessages(current => [...current, message]), controller.current.signal);
-      setResult(parsed); setMessages(current => [...current, "解析完成，待核对"]);
+      setResult(parsed);
+      if (parsed.kind === "report" && typeof parsed.gestationalWeek === "number") setWeek(parsed.gestationalWeek);
+      setMessages(current => [...current, "解析完成，待核对"]);
     } catch (cause) {
       if ((cause as Error).name === "AbortError") setMessages(current => [...current, "已取消"]);
       else setError((cause as Error).message === "Failed to fetch" ? "无法连接本地后端，请检查服务后重试。" : (cause as Error).message);
@@ -56,8 +58,8 @@ export function ReportsTab({ records, onSave }: Props) {
     if (!result || saved || !Number.isInteger(week) || week < 4 || week > 42) return;
     if (result.kind === "report") {
       const hb = result.indicators.find(item => /血红蛋白|\b(hb|hgb)\b/i.test(item.name) && item.value !== null && item.value > 0 && /^(g\/l|g\/dl)$/i.test(item.unit.trim()));
-      onSave({ id: crypto.randomUUID(), date: new Date().toLocaleDateString("sv-SE"), gestationalWeek: week,
-        metrics: hb ? { hb: hb.value! * (hb.unit.toLowerCase().trim() === "g/dl" ? 10 : 1) } : {}, source: result.mode,
+      if (hb) onSave({ id: crypto.randomUUID(), date: result.reportDate || new Date().toLocaleDateString("sv-SE"), gestationalWeek: week,
+        metrics: { hb: hb.value! * (hb.unit.toLowerCase().trim() === "g/dl" ? 10 : 1) }, source: result.mode,
       });
     }
     setArchive(current => [result, ...current]); setSaved(true);
@@ -89,14 +91,17 @@ export function ReportsTab({ records, onSave }: Props) {
     <div className="analysis-stack">
       {!result ? <div className="agent-empty"><FileText size={36} /><h2>{busy ? "正在整理图片内容" : "等待解析结果"}</h2><p>{kind === "report" ? "指标数值、报告参考区间与给医生的问题" : "药品名称、成分、规格与包装注意事项"}</p></div> : <>
         <div className="result-heading"><h2>{result.kind === "report" ? "报告解析结果" : "药盒解析结果"}</h2><span className={result.mode === "demo" ? "demo-label" : "live-label"}>{result.mode === "demo" ? "固定演示样例 · 非图片识别" : "图片识别结果 · 待核对"}</span></div>
+        {result.reportTitle && <div className="report-meta"><strong>{result.reportTitle}</strong><span>{result.reportDate || "日期未识别"}</span><span>{typeof result.gestationalWeek === "number" ? `报告孕周 ${result.gestationalWeek}周${result.gestationalDay ?? 0}天` : "孕周未识别"}</span></div>}
         <p>{result.summary}</p>
+        {result.conclusions && result.conclusions.length > 0 && <section className="report-conclusion"><p className="section-kicker">报告原文提示</p>{result.conclusions.map((item, index) => <p key={index}>{index + 1}. {item}</p>)}</section>}
+        {result.findings && result.findings.length > 0 && <section><h2>超声所见整理</h2><dl className="finding-list">{result.findings.map((item, index) => <div key={index}><dt>{item.label}</dt><dd>{item.text}</dd></div>)}</dl></section>}
         {result.kind === "report" && result.indicators.length > 0 && <div className="metric-table-wrap"><table className="metric-table"><thead><tr><th>指标</th><th>识别数值</th><th>单位</th><th>报告参考区间</th></tr></thead><tbody>{result.indicators.map((item, index) => <tr key={index}><td>{item.name} {item.flag}</td><td><input aria-label={`${item.name}数值`} type="number" step="any" value={item.value ?? ""} disabled={saved} placeholder="未识别" onChange={event => { const value = event.target.value === "" ? null : Number(event.target.value); setResult(current => current && ({ ...current, indicators: current.indicators.map((metric, i) => i === index ? { ...metric, value } : metric) })); }} /></td><td>{item.unit || "未识别"}</td><td>{item.reference || "未识别"}</td></tr>)}</tbody></table></div>}
         {result.medicines.map((medicine, index) => <article className="medicine-result" key={index}><h2>{medicine.name}</h2><dl>{[["成分", medicine.ingredients], ["规格", medicine.strength], ["包装用法原文", medicine.labelDirections], ["注意事项", medicine.warnings]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "未识别"}</dd></div>)}</dl></article>)}
         <div><h2>核对提醒</h2><ul className="advice-list">{result.notes.map((note, i) => <li key={i}>{note}</li>)}</ul></div>
         <div><h2>给医生的问题</h2><ol className="question-list">{result.questions.map((question, i) => <li key={i}>{question}</li>)}</ol></div>
         <div className="archive-controls">{result.kind === "report" && <label>报告对应孕周<input type="number" min="4" max="42" step="1" value={week} disabled={saved} onChange={event => setWeek(Number(event.target.value))} /></label>}<button className="primary-action" type="button" disabled={saved || !Number.isInteger(week) || week < 4 || week > 42 || !(result.indicators.length || result.medicines.length)} onClick={save}><Save size={17} />{saved ? "已归档" : "核对并归档"}</button></div>
       </>}
-      <div className="section-block chart-section"><h2>血红蛋白历史趋势</h2><TrendChart points={trendRecords.filter(item => item.metrics.hb !== undefined).map(item => ({ week: item.gestationalWeek, value: item.metrics.hb!, label: `${item.gestationalWeek}w` })).sort((a,b) => a.week - b.week)} /><p className="upload-notice">{liveRecords.length ? "图中仅包含已归档的真实识别记录。" : "当前图表为演示历史。"}新报告仅将单位明确的 Hb 指标加入趋势；固定样例单独归档。</p><div className="record-strip">{records.map(record => <span key={record.id}>{record.source !== "live" ? "样例 " : ""}{record.gestationalWeek}w · Hb {record.metrics.hb ?? "未识别"}</span>)}</div></div>
+      {trendRecords.some(item => item.metrics.hb !== undefined) ? <div className="section-block chart-section"><h2>血红蛋白历史趋势</h2><TrendChart points={trendRecords.filter(item => item.metrics.hb !== undefined).map(item => ({ week: item.gestationalWeek, value: item.metrics.hb!, label: `${item.gestationalWeek}w` })).sort((a,b) => a.week - b.week)} /><p className="upload-notice">{liveRecords.length ? "图中仅包含已归档的真实识别记录。" : "当前图表为演示历史。"}新报告仅将单位明确的 Hb 指标加入趋势。</p><div className="record-strip">{records.map(record => <span key={record.id}>{record.source !== "live" ? "样例 " : ""}{record.gestationalWeek}w · Hb {record.metrics.hb ?? "未识别"}</span>)}</div></div> : <div className="no-trend"><FileText size={24} /><div><h2>暂无可比较的 Hb 趋势</h2><p>当前超声样例不含血红蛋白。上传并归档含明确 Hb 单位的报告后，这里会自动生成趋势。</p></div></div>}
       {archive.length > 0 && <div><h2>本次会话归档</h2>{archive.map((entry, i) => <details key={i}><summary>{entry.kind === "medicine" ? "药盒" : "产检报告"} · {entry.mode === "demo" ? "演示样例" : "图片识别"}</summary><p>{entry.summary}</p>{entry.indicators.map((item,j) => <p key={j}>{item.name}：{item.value ?? "未识别"} {item.unit}</p>)}{entry.medicines.map((item,j) => <p key={j}>{item.name} · {item.ingredients} · {item.strength}</p>)}</details>)}</div>}
     </div>
     <p className="disclaimer">识别结果需对照原图核对。仅用于记录整理和就诊准备，不替代医生意见；药盒标签用法不代表个人用药建议。</p>

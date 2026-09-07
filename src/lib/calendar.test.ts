@@ -6,6 +6,13 @@ describe("buildIcs", () => {
     const ics = buildIcs(
       [
         {
+          kind: "meal",
+          menu: "全麦面包 + 全熟鸡蛋",
+          time: "07:00",
+          meds: ["早餐"],
+          reason: "均衡搭配。",
+        },
+        {
           time: "07:30",
           meds: ["复合维生素"],
           reason: "含 B 族维生素，建议早晨随餐。",
@@ -23,8 +30,9 @@ describe("buildIcs", () => {
     );
 
     expect(ics).toContain("BEGIN:VCALENDAR");
-    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(3);
     expect(ics).toContain("RRULE:FREQ=DAILY");
     expect(ics).toContain("SUMMARY:孕期助手 - 铁剂");
+    expect(ics).toContain("全麦面包 + 全熟鸡蛋");
   });
 });

@@ -1,5 +1,11 @@
 export type ImageKind = "report" | "medicine";
 export interface ImageResult {
+  reportTitle?: string;
+  reportDate?: string;
+  gestationalWeek?: number;
+  gestationalDay?: number;
+  findings?: { label: string; text: string }[];
+  conclusions?: string[];
   kind: ImageKind;
   mode: "live" | "demo";
   summary: string;

@@ -1,3 +1,15 @@
+import { ProxyAgent, fetch as proxyFetch } from 'undici';
+import { readFileSync } from 'node:fs';
+const ultrasoundDemo = JSON.parse(readFileSync(new URL('../src/data/ultrasound-demo.json', import.meta.url), 'utf8'));
+
+let proxyAgent;
+function proxyOptions() {
+  const url = process.env.OPENAI_PROXY_URL;
+  if (!url) return {};
+  proxyAgent ??= new ProxyAgent(url);
+  return { dispatcher: proxyAgent };
+}
+
 const string = { type: 'string' };
 const strings = { type: 'array', items: string };
 const object = (properties) => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
@@ -23,11 +35,12 @@ export function validateInput(input) {
   if (!valid) throw new Error('图片内容与格式不符，请重新选择图片。');
 }
 
-export async function parseImage(input, { apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-4.1-mini', fetchImpl = fetch, signal } = {}) {
+export async function parseImage(input, { apiKey = process.env.OPENAI_API_KEY, model = process.env.OPENAI_MODEL || 'gpt-4.1-mini', fetchImpl = proxyFetch, signal } = {}) {
   validateInput(input);
   if (input.demo === true) return demoResult(input.kind);
   if (!apiKey) throw new Error('本地后端尚未配置 OPENAI_API_KEY。请填写 .env.local 并重启服务，或选择演示样例。');
   const response = await fetchImpl('https://api.openai.com/v1/responses', {
+    ...proxyOptions(),
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(90000)]) : AbortSignal.timeout(90000),
@@ -61,6 +74,7 @@ function matchesSchema(value, spec) {
 }
 
 function demoResult(kind) {
+  if (kind === 'report') return structuredClone(ultrasoundDemo);
   return { kind, mode: 'demo', summary: kind === 'report' ? '演示样例：血常规报告记录了血红蛋白等指标。以下为固定样例，未读取上传图片。' : '演示样例：碳酸钙 D3 片的包装信息。以下为固定样例，未读取上传图片。',
     indicators: kind === 'report' ? [{ name: '血红蛋白 Hb', value: 105, unit: 'g/L', reference: '110–150（样例报告）', flag: '↓' }] : [],
     medicines: kind === 'medicine' ? [{ name: '碳酸钙 D3 片（样例）', ingredients: '碳酸钙、维生素 D3', strength: '未识别', labelDirections: '未识别，请补充说明书照片', warnings: '仅为包装记录，使用方式请向医生确认。' }] : [],

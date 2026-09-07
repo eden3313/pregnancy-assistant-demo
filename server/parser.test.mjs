@@ -16,6 +16,11 @@ test('explicit demo supports both kinds', async () => {
     assert.equal(result.mode, 'demo');
     assert.equal(result.kind, kind);
     assert.ok(kind === 'report' ? result.indicators.length : result.medicines.length);
+    if (kind === 'report') {
+      assert.match(result.summary, /胚芽长 16 mm/);
+      assert.deepEqual(result.conclusions, ['宫内妊娠（57天左右）', '孕囊旁积液可能']);
+      assert.equal(result.gestationalWeek, 8);
+    }
   }
 });
 test('real request sends image and preserves missing values', async () => {

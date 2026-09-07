@@ -24,7 +24,7 @@ export function buildIcs(slots: ScheduleSlot[], options: IcsOptions): string {
       `DTEND:${toIcsDateTime(options.startDate, addMinutes(slot.time, 15))}`,
       "RRULE:FREQ=DAILY",
       `SUMMARY:${escapeIcs(`孕期助手 - ${slot.meds.join("、")}`)}`,
-      `DESCRIPTION:${escapeIcs(slot.reason)}`,
+      `DESCRIPTION:${escapeIcs([slot.menu, slot.reason].filter(Boolean).join("\n"))}`,
       "END:VEVENT",
     );
   });

@@ -123,7 +123,7 @@ export function getGestationalAge(dueDate: string, today = new Date()): Gestatio
   const due = parseDateOnly(dueDate);
   const current = stripTime(today);
   const daysUntilDue = Math.round((due.getTime() - current.getTime()) / 86_400_000);
-  const totalDays = Math.min(PREGNANCY_TOTAL_DAYS, Math.max(0, PREGNANCY_TOTAL_DAYS - daysUntilDue));
+  const totalDays = Math.max(0, PREGNANCY_TOTAL_DAYS - daysUntilDue);
   const week = Math.floor(totalDays / 7);
   const day = totalDays % 7;
 
@@ -136,8 +136,10 @@ export function getGestationalAge(dueDate: string, today = new Date()): Gestatio
 }
 
 export function getNextCheckup(week: number): CheckupTask {
+  if (week < 11) return { title: "首次产检与孕周确认", window: "与产科预约确认", detail: "携带末次月经日期与用药清单，和医生确认孕周、建档及后续筛查安排。" };
+  if (week >= 40) return { title: "确认预产期后的随访安排", window: "及时联系产科", detail: "请与产科确认复查与分娩计划，不要仅依赖本页面的一般时间安排。" };
   return (
-    CHECKUP_NODES.find((node) => week <= node.endWeek && week >= node.startWeek - 1)?.task ??
+    CHECKUP_NODES.find((node) => week < node.endWeek)?.task ??
     CHECKUP_NODES[CHECKUP_NODES.length - 1].task
   );
 }
@@ -164,7 +166,7 @@ function describeBaby(week: number): string {
 
 function getAdvice(week: number): string[] {
   if (week < 24) {
-    return ["固定记录胎动和不适感，方便下次门诊描述。", "把每次报告拍照归档，保留原始数值。", "补剂尽量按固定时段执行，减少漏服。"];
+    return ["记录近期不适和想向医生了解的问题。", "把每次报告拍照归档，保留原始数值。", "将药物、补剂名称及用法整理好，供医生核对。"];
   }
 
   if (week < 29) {
