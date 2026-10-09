@@ -37,7 +37,18 @@ npm run dev
 - `POST /api/parse-report`：JSON 请求 `{ "kind": "report" | "medicine", "imageDataUrl": "data:image/png;base64,..." }`。
 - 演示请求：`{ "kind": "report" | "medicine", "demo": true }`。
 - 响应是逐行 JSON（`application/x-ndjson`），依次返回 `status` 事件和 `result` 或 `error` 事件。HTTP 200 后也可能收到解析错误，客户端必须处理 `error` 事件。
-- `npm run dev:api` 可单独运行后端。服务绑定回环地址，只用于本地演示，尚未实现公网认证、用户隔离或部署。
+- `npm run dev:api` 可单独运行本地后端；生产环境由同一个 Node 服务托管构建后的页面和 `/api`。
+
+## 上线 Web Demo
+
+仓库已包含 `render.yaml`，可将前端和报告解析 API 部署为同一个 Render Web Service：
+
+1. 登录 Render，选择 **New > Blueprint**，连接本 GitHub 仓库。
+2. 选择 `main` 分支并部署 Blueprint；Render 会执行 `npm ci && npm run build`。
+3. 在环境变量提示中填写 `OPENAI_API_KEY`，不要把真实密钥写入代码或提交到 GitHub。
+4. 部署完成后使用 Render 提供的 `https://*.onrender.com` 地址访问；`/api/health` 可检查后端是否运行及密钥是否已配置。
+
+生产服务使用 Render 提供的 `PORT` 并监听 `0.0.0.0`，同时托管 `dist` 页面和 `/api`，因此浏览器不会接触 API Key。免费服务可能在空闲后休眠，首次访问会有冷启动等待。公开演示前应使用新生成的 API Key，并给该 Key 设置用量限制。
 
 归档保存在页面会话中，切换 Tab 保留，刷新会清空。Hb 仅在单位明确为 g/L 或 g/dL 时加入趋势。示例与真实识别有明确来源标记。药盒不会自动改变补剂排程或用药剂量。
 

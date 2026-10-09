@@ -1,12 +1,76 @@
 import http from 'node:http';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseImage, validateInput } from './parser.mjs';
 
-export function createApiServer() {
+const CONTENT_TYPES = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
+  '.jpeg': 'image/jpeg',
+  '.jpg': 'image/jpeg',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+};
+
+function isAllowedOrigin(req) {
+  const origin = req.headers.origin;
+  if (!origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  const forwardedProto = req.headers['x-forwarded-proto']?.split(',')[0].trim();
+  const forwardedHost = req.headers['x-forwarded-host']?.split(',')[0].trim();
+  const host = forwardedHost || req.headers.host;
+  return Boolean(host && origin === `${forwardedProto || 'http'}://${host}`);
+}
+
+async function serveStatic(req, res, staticDir) {
+  const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  const requestedPath = pathname === '/' ? '/index.html' : pathname;
+  const root = path.resolve(staticDir);
+  const candidate = path.resolve(root, `.${requestedPath}`);
+  const insideRoot = candidate === root || candidate.startsWith(root + path.sep);
+  if (!insideRoot) return false;
+
+  let filePath = candidate;
+  try {
+    const body = await readFile(filePath);
+    const extension = path.extname(filePath).toLowerCase();
+    res.writeHead(200, {
+      'Content-Type': CONTENT_TYPES[extension] || 'application/octet-stream',
+      'Cache-Control': requestedPath.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache',
+      'X-Content-Type-Options': 'nosniff',
+    });
+    res.end(body);
+    return true;
+  } catch (error) {
+    if (error.code !== 'ENOENT' && error.code !== 'EISDIR') throw error;
+  }
+
+  if (path.extname(requestedPath)) return false;
+  filePath = path.join(root, 'index.html');
+  try {
+    const body = await readFile(filePath);
+    res.writeHead(200, { 'Content-Type': CONTENT_TYPES['.html'], 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+    res.end(body);
+    return true;
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    return false;
+  }
+}
+
+export function createApiServer({ staticDir } = {}) {
   return http.createServer(async (req, res) => {
-    res.setHeader('Cache-Control', 'no-store');
     const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(body)); };
-    if (req.headers.origin && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(req.headers.origin)) return send(403, { error: '仅允许本地页面访问。' });
+    if (!isAllowedOrigin(req)) return send(403, { error: '仅允许同域页面访问。' });
+    if (req.method === 'GET' && staticDir && !req.url.startsWith('/api/')) {
+      if (await serveStatic(req, res, staticDir)) return;
+      return send(404, { error: '页面不存在。' });
+    }
+    res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'GET' && req.url === '/api/health') return send(200, { ok: true, configured: Boolean(process.env.OPENAI_API_KEY) });
     if (req.method !== 'POST' || req.url !== '/api/parse-report') return send(404, { error: '接口不存在。' });
     if (!req.headers['content-type']?.startsWith('application/json')) return send(415, { error: '请求必须为 JSON。' });
@@ -40,6 +104,9 @@ export function createApiServer() {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try { process.loadEnvFile('.env.local'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  const server = createApiServer();
-  server.listen(Number(process.env.API_PORT || 8787), '127.0.0.1', () => console.log('Local API: http://127.0.0.1:' + server.address().port));
+  const production = process.env.NODE_ENV === 'production';
+  const server = createApiServer({ staticDir: production ? path.resolve('dist') : undefined });
+  const port = Number(process.env.PORT || process.env.API_PORT || 8787);
+  const host = production ? '0.0.0.0' : '127.0.0.1';
+  server.listen(port, host, () => console.log(`${production ? 'Web app' : 'Local API'}: http://${host}:${server.address().port}`));
 }
