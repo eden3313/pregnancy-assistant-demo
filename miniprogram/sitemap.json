@@ -1,0 +1,4 @@
+{
+  "desc": "孕期日程记录",
+  "rules": [{ "action": "disallow", "page": "*" }]
+}

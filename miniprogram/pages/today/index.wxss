@@ -1,0 +1,8 @@
+.hero { display: flex; align-items: center; background: #fffdfb; border: 1rpx solid #e5e2dc; border-radius: 16rpx; padding: 22rpx; }
+.hero-image { width: 132rpx; height: 132rpx; border-radius: 50%; margin-right: 22rpx; }
+.hero-copy { flex: 1; }.week { font-size: 54rpx; font-weight: 750; line-height: 1.15; }
+.icon-button { width: 92rpx; padding: 10rpx 0; font-size: 24rpx; color: #4d7d68; background: #e4efe9; border-radius: 12rpx; }
+.progress { height: 12rpx; margin: 18rpx 10rpx 0; background: #e4e0da; border-radius: 999rpx; overflow: hidden; }.progress-bar { height: 100%; background: #e88f7d; border-radius: 999rpx; }
+.checkup { border-left: 8rpx solid #8d7fb5; }.checkup-title { font-size: 36rpx; font-weight: 700; margin-top: 18rpx; }.detail { margin-top: 12rpx; }
+.bullet { margin: 12rpx 0; }.today-row { display: flex; gap: 24rpx; padding: 16rpx 0; border-bottom: 1rpx solid #eeeae4; }.time { color: #4d7d68; font-weight: 650; }.done { text-decoration: line-through; color: #8c928f; }
+.footer-link { text-align: center; margin-top: 36rpx; color: #4d7d68; font-size: 24rpx; }

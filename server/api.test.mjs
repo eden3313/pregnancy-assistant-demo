@@ -16,6 +16,8 @@ test('API streams progress and result, rejects bad uploads and foreign origins',
     assert.equal(events[2].result.kind, 'medicine');
     const bad = await fetch(base + '/api/parse-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     assert.equal(bad.status, 400);
+    const badExtract = await fetch(base + '/api/extract-report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    assert.equal(badExtract.status, 400);
     const foreign = await fetch(base + '/api/parse-report', { method: 'POST', headers: { Origin: 'https://example.com' } });
     assert.equal(foreign.status, 403);
   } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

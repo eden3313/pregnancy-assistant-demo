@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="header"><view><text class="eyebrow">个人安排</text><view class="page-title">日程表</view></view><button class="add-button" bindtap="add">＋</button></view>
+  <view class="muted">可编辑、删除和勾选完成；饮食内容是通用搭配示例。</view>
+  <view class="card" wx:if="{{editing}}">
+    <view class="section-title">{{form.id ? '编辑日程' : '新增日程'}}</view>
+    <view class="field"><text class="label">日期</text><picker mode="date" value="{{form.date}}" data-field="date" bindchange="onInput"><view class="picker">{{form.date}}</view></picker></view>
+    <view class="field"><text class="label">时间</text><picker mode="time" value="{{form.time}}" data-field="time" bindchange="onInput"><view class="picker">{{form.time}}</view></picker></view>
+    <view class="field"><text class="label">类型</text><picker range="{{typeNames}}" value="{{typeIndex}}" bindchange="onType"><view class="picker">{{typeNames[typeIndex]}}</view></picker></view>
+    <view class="field"><text class="label">名称</text><input class="input" data-field="title" value="{{form.title}}" bindinput="onInput" placeholder="例如：早餐、产检"/></view>
+    <view class="field"><text class="label">备注</text><textarea class="textarea" data-field="note" value="{{form.note}}" bindinput="onInput" placeholder="按原计划记录，不填写剂量建议"/></view>
+    <button class="button-primary" bindtap="save">保存</button><button class="button-secondary" bindtap="close">取消</button>
+  </view>
+  <view wx:if="{{items.length}}"><view class="schedule-row {{item.completed ? 'completed' : ''}}" wx:for="{{items}}" wx:key="id"><view class="check" data-id="{{item.id}}" bindtap="toggle">{{item.completed ? '✓' : ''}}</view><view class="schedule-main" data-id="{{item.id}}" bindtap="edit"><view><text class="time">{{item.date}} · {{item.time}}</text><text class="type">{{item.type}}</text></view><view class="title">{{item.title}}</view><view class="muted" wx:if="{{item.note}}">{{item.note}}</view></view><button class="delete" data-id="{{item.id}}" bindtap="remove">×</button></view></view>
+  <view class="empty" wx:else>暂无日程，点击右上角添加。</view>
+</view>

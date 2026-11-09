@@ -50,6 +50,12 @@ npm run dev
 
 生产服务使用 Render 提供的 `PORT` 并监听 `0.0.0.0`，同时托管 `dist` 页面和 `/api`，因此浏览器不会接触 API Key。免费服务可能在空闲后休眠，首次访问会有冷启动等待。公开演示前应使用新生成的 API Key，并给该 Key 设置用量限制。
 
+## 微信小程序
+
+原生微信小程序源码位于 `miniprogram/`，与 Web Demo 共用 Node 后端，但使用独立的受限接口 `POST /api/extract-report`。该接口仅返回 OCR 原文、原文摘要和通用术语释义，不返回医学判断或建议。
+
+导入前先将 `miniprogram/config.ts` 中的占位地址替换为自有 HTTPS API 域名，然后在微信开发者工具中导入整个 `miniprogram` 文件夹并填写 AppID。真实 AppID、AppSecret 和 API Key 都不得提交到仓库。完整步骤见 `docs/wechat/release-checklist.md`。
+
 归档保存在页面会话中，切换 Tab 保留，刷新会清空。Hb 仅在单位明确为 g/L 或 g/dL 时加入趋势。示例与真实识别有明确来源标记。药盒不会自动改变补剂排程或用药剂量。
 
 实现参考：[OpenAI 图片输入](https://developers.openai.com/api/docs/guides/images-vision)、[结构化输出](https://developers.openai.com/api/docs/guides/structured-outputs)。

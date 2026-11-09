@@ -1,0 +1,11 @@
+<view class="page" wx:if="{{form}}">
+  <view class="page-title">我的资料</view><view class="muted">资料仅保存在当前设备，可随时修改。</view>
+  <view class="card">
+    <view class="field"><text class="label">末次月经第一天</text><picker mode="date" value="{{form.lastPeriod}}" end="{{today}}" data-field="lastPeriod" bindchange="onInput"><view class="picker">{{form.lastPeriod}}</view></picker></view>
+    <view class="field"><text class="label">胎数</text><radio-group data-field="babies" bindchange="onChoice"><label><radio value="single" checked="{{form.babies === 'single'}}" color="#4d7d68"/>单胎</label><label><radio value="twins" checked="{{form.babies === 'twins'}}" color="#4d7d68"/>双胎</label><label><radio value="multiple" checked="{{form.babies === 'multiple'}}" color="#4d7d68"/>多胎</label></radio-group></view>
+    <view class="field"><text class="label">是否有高危因素</text><radio-group data-field="risk" bindchange="onChoice"><label><radio value="no" checked="{{form.risk === 'no'}}" color="#4d7d68"/>无</label><label><radio value="yes" checked="{{form.risk === 'yes'}}" color="#4d7d68"/>有</label><label><radio value="unknown" checked="{{form.risk === 'unknown'}}" color="#4d7d68"/>不确定</label></radio-group></view>
+    <view class="field"><text class="label">高危因素</text><textarea class="textarea" data-field="riskDetails" value="{{form.riskDetails}}" bindinput="onInput"/></view>
+    <view class="field"><text class="label">当前用药原文记录</text><textarea class="textarea" data-field="medications" value="{{form.medications}}" bindinput="onInput"/></view>
+  </view>
+  <button class="button-primary" bindtap="save">保存资料</button><button class="button-danger" bindtap="clearAll">清除全部本地数据</button>
+</view>

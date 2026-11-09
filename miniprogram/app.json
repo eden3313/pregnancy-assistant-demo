@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/today/index",
+    "pages/schedule/index",
+    "pages/records/index",
+    "pages/onboarding/index",
+    "pages/profile/index",
+    "pages/privacy/index",
+    "pages/record-editor/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "孕期日程记录",
+    "navigationBarBackgroundColor": "#f7f4f0",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f4f0",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#7a756f",
+    "selectedColor": "#4d7d68",
+    "backgroundColor": "#fffdfb",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/today/index", "text": "今日" },
+      { "pagePath": "pages/schedule/index", "text": "日程" },
+      { "pagePath": "pages/records/index", "text": "记录" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

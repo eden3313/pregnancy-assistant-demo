@@ -1,0 +1,14 @@
+<view class="page">
+  <text class="eyebrow">孕期日程记录</text>
+  <view class="page-title">先建立你的孕期资料</view>
+  <view class="muted">用于计算孕周和安排个人日程，资料仅保存在当前微信设备。</view>
+  <view class="card">
+    <view class="field"><text class="label">末次月经第一天</text><picker mode="date" value="{{form.lastPeriod}}" end="{{today}}" data-field="lastPeriod" bindchange="onInput"><view class="picker">{{form.lastPeriod || '请选择日期'}}</view></picker></view>
+    <view class="field"><text class="label">胎数</text><radio-group data-field="babies" bindchange="onChoice"><label class="radio"><radio value="single" checked="{{form.babies === 'single'}}" color="#4d7d68"/>单胎</label><label class="radio"><radio value="twins" checked="{{form.babies === 'twins'}}" color="#4d7d68"/>双胎</label><label class="radio"><radio value="multiple" checked="{{form.babies === 'multiple'}}" color="#4d7d68"/>多胎</label></radio-group></view>
+    <view class="field"><text class="label">是否有高危因素</text><radio-group data-field="risk" bindchange="onChoice"><label class="radio"><radio value="no" checked="{{form.risk === 'no'}}" color="#4d7d68"/>无</label><label class="radio"><radio value="yes" checked="{{form.risk === 'yes'}}" color="#4d7d68"/>有</label><label class="radio"><radio value="unknown" checked="{{form.risk === 'unknown'}}" color="#4d7d68"/>不确定</label></radio-group></view>
+    <view class="field" wx:if="{{form.risk !== 'no'}}"><text class="label">高危因素记录</text><textarea class="textarea" maxlength="500" data-field="riskDetails" value="{{form.riskDetails}}" bindinput="onInput" placeholder="按医生告知或病历原文填写"/></view>
+    <view class="field"><text class="label">当前正在服用的药物</text><textarea class="textarea" maxlength="1000" data-field="medications" value="{{form.medications}}" bindinput="onInput" placeholder="仅作原文记录，不提供用药建议"/></view>
+  </view>
+  <checkbox-group bindchange="onPrivacy"><label class="privacy-check"><checkbox value="accepted" color="#4d7d68"/>我已阅读并同意</label><text class="privacy-link" bindtap="openPrivacy">《隐私说明》</text></checkbox-group>
+  <button class="button-primary" bindtap="submit">生成我的孕期状态</button>
+</view>

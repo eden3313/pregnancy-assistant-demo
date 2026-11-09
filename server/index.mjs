@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseImage, validateInput } from './parser.mjs';
+import { extractReport, validateExtractInput } from './report-extractor.mjs';
 
 const CONTENT_TYPES = {
   '.css': 'text/css; charset=utf-8',
@@ -72,7 +73,9 @@ export function createApiServer({ staticDir } = {}) {
     }
     res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'GET' && req.url === '/api/health') return send(200, { ok: true, configured: Boolean(process.env.OPENAI_API_KEY) });
-    if (req.method !== 'POST' || req.url !== '/api/parse-report') return send(404, { error: '接口不存在。' });
+    const isLegacyParse = req.method === 'POST' && req.url === '/api/parse-report';
+    const isRecordExtract = req.method === 'POST' && req.url === '/api/extract-report';
+    if (!isLegacyParse && !isRecordExtract) return send(404, { error: '接口不存在。' });
     if (!req.headers['content-type']?.startsWith('application/json')) return send(415, { error: '请求必须为 JSON。' });
     let input;
     try {
@@ -84,8 +87,12 @@ export function createApiServer({ staticDir } = {}) {
         chunks.push(chunk);
       }
       input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-      validateInput(input);
+      if (isRecordExtract) validateExtractInput(input); else validateInput(input);
     } catch (error) { return send(400, { error: error instanceof SyntaxError ? '请求格式错误。' : error.message }); }
+    if (isRecordExtract) {
+      try { return send(200, await extractReport(input)); }
+      catch (error) { return send(502, { error: ['TimeoutError', 'AbortError'].includes(error.name) ? '解析超时，请重试。' : error.message === 'fetch failed' ? '无法连接文字整理服务。' : error.message }); }
+    }
     res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'X-Content-Type-Options': 'nosniff' });
     const emit = (event) => { if (!res.destroyed) res.write(JSON.stringify(event) + '\n'); };
     const controller = new AbortController();

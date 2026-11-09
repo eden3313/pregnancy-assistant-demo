@@ -1,0 +1,29 @@
+page {
+  --ink: #24332d;
+  --muted: #6f7c76;
+  --green: #4d7d68;
+  --green-soft: #e4efe9;
+  --coral: #e88f7d;
+  --lavender: #8d7fb5;
+  --surface: #fffdfb;
+  --line: #e5e2dc;
+  background: #f7f4f0;
+  color: var(--ink);
+  font-size: 30rpx;
+  line-height: 1.55;
+}
+.page { min-height: 100vh; box-sizing: border-box; padding: 32rpx 28rpx 60rpx; }
+.page-title { font-size: 48rpx; font-weight: 700; margin: 12rpx 0 8rpx; }
+.eyebrow { color: var(--green); font-size: 24rpx; font-weight: 600; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1rpx solid var(--line); border-radius: 16rpx; padding: 28rpx; margin-top: 24rpx; }
+.section-title { font-size: 32rpx; font-weight: 650; margin-bottom: 16rpx; }
+.field { margin-top: 24rpx; }
+.label { display: block; font-size: 26rpx; color: var(--muted); margin-bottom: 10rpx; }
+.input, .textarea, .picker { box-sizing: border-box; width: 100%; border: 1rpx solid #d8d5cf; border-radius: 12rpx; background: white; padding: 20rpx; }
+.textarea { min-height: 150rpx; }
+.button-primary { margin-top: 28rpx; background: var(--green); color: white; border-radius: 12rpx; font-weight: 650; }
+.button-secondary { margin-top: 20rpx; background: white; color: var(--green); border: 1rpx solid #a9c0b5; border-radius: 12rpx; }
+.button-danger { margin-top: 20rpx; background: white; color: #a14f43; border: 1rpx solid #d9ada6; border-radius: 12rpx; }
+.pill { display: inline-block; border-radius: 999rpx; padding: 6rpx 16rpx; background: var(--green-soft); color: var(--green); font-size: 24rpx; }
+.empty { text-align: center; color: var(--muted); padding: 80rpx 24rpx; }

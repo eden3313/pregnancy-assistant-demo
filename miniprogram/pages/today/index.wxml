@@ -1,0 +1,13 @@
+<view class="page" wx:if="{{overview}}">
+  <view class="hero">
+    <image class="hero-image" src="/assets/miniprogram-avatar.png" mode="aspectFit"/>
+    <view class="hero-copy"><text class="eyebrow">{{overview.trimester}}</text><view class="week">{{overview.gestationalAge.label}}</view><view class="muted">预产期估算 {{overview.dueDate}}</view></view>
+    <button class="icon-button" bindtap="editProfile" aria-label="编辑资料">资料</button>
+  </view>
+  <view class="progress"><view class="progress-bar" style="width: {{overview.progressPercent}}%"></view></view>
+  <view class="card"><view class="section-title">宝宝状态</view><view>{{overview.babyDescription}}</view></view>
+  <view class="card checkup"><text class="pill">下一次产检</text><view class="checkup-title">{{overview.nextCheckup.title}}</view><view class="muted">{{overview.nextCheckup.window}}</view><view class="detail">{{overview.nextCheckup.detail}}</view></view>
+  <view class="card"><view class="section-title">近期记录提醒</view><view class="bullet" wx:for="{{overview.reminders}}" wx:key="*this">• {{item}}</view></view>
+  <view class="card"><view class="section-title">今日日程</view><view wx:if="{{todayItems.length}}"><view class="today-row" wx:for="{{todayItems}}" wx:key="id"><text class="time">{{item.time}}</text><text class="task {{item.completed ? 'done' : ''}}">{{item.title}}</text></view></view><view class="muted" wx:else>今天还没有日程，可前往“日程”添加。</view></view>
+  <view class="footer-link" bindtap="openPrivacy">隐私说明与使用边界</view>
+</view>

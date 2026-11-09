@@ -1,0 +1,17 @@
+{
+  "description": "孕期日程记录微信小程序",
+  "packOptions": { "ignore": ["**/*.test.ts", "UPLOAD_README.md", "tsconfig.json"] },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true,
+    "useCompilerPlugins": ["typescript"]
+  },
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "appid": "touristappid",
+  "projectname": "pregnancy-assistant",
+  "miniprogramRoot": "./"
+}

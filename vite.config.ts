@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: { proxy: { "/api": "http://127.0.0.1:8787" } },
   test: {
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "miniprogram/**/*.test.ts"],
     environment: "jsdom",
   },
 });
