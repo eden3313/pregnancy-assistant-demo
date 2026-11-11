@@ -1,6 +1,16 @@
 {
   "description": "孕期日程记录微信小程序",
-  "packOptions": { "ignore": ["**/*.test.ts", "UPLOAD_README.md", "tsconfig.json"] },
+  "packOptions": {
+    "ignore": [
+      { "value": "domain/profile.test.ts", "type": "file" },
+      { "value": "domain/records.test.ts", "type": "file" },
+      { "value": "domain/schedule.test.ts", "type": "file" },
+      { "value": "storage/app-state.test.ts", "type": "file" },
+      { "value": "UPLOAD_README.md", "type": "file" },
+      { "value": "tsconfig.json", "type": "file" }
+    ],
+    "include": []
+  },
   "setting": {
     "urlCheck": true,
     "es6": true,
