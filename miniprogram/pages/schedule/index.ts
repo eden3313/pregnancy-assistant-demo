@@ -1,4 +1,4 @@
-import { addScheduleItem, deleteScheduleItem, toggleScheduleItem, updateScheduleItem } from "../../domain/schedule";
+import { addScheduleItem, deleteScheduleItem, syncDailySchedule, toggleScheduleItem, updateScheduleItem } from "../../domain/schedule";
 import { loadAppState, saveAppState } from "../../storage/app-state";
 import { wxStorage } from "../../storage/wx-storage";
 import { makeId, todayText } from "../../utils/date";
@@ -8,9 +8,20 @@ const emptyForm = (): ScheduleItem => ({ id: "", date: todayText(), time: "08:00
 Page({
   data: { items: [] as ScheduleItem[], editing: false, form: emptyForm(), typeNames: ["吃饭", "补剂", "产检", "自定义"], typeValues: ["meal", "supplement", "checkup", "custom"], typeIndex: 3 },
   onShow() { this.reload(); },
-  reload() { this.setData({ items: loadAppState(wxStorage).schedule }); },
+  reload() {
+    const state = loadAppState(wxStorage);
+    if (state.profile) {
+      state.schedule = syncDailySchedule(state.schedule, todayText(), state.profile.medications);
+      saveAppState(wxStorage, state);
+    }
+    this.setData({ items: state.schedule });
+  },
   add() { this.setData({ editing: true, form: emptyForm(), typeIndex: 3 }); },
-  edit(event: any) { const item = this.data.items.find((entry: ScheduleItem) => entry.id === event.currentTarget.dataset.id); if (item) this.setData({ editing: true, form: { ...item }, typeIndex: this.data.typeValues.indexOf(item.type) }); },
+  edit(event: any) {
+    const item = this.data.items.find((entry: ScheduleItem) => entry.id === event.currentTarget.dataset.id);
+    if (item?.sourceMedicationId) return wx.showToast({ title: "请在资料中修改用药计划", icon: "none" });
+    if (item) this.setData({ editing: true, form: { ...item }, typeIndex: this.data.typeValues.indexOf(item.type) });
+  },
   close() { this.setData({ editing: false }); },
   onInput(event: any) { this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value }); },
   onType(event: any) { const index = Number(event.detail.value); this.setData({ typeIndex: index, "form.type": this.data.typeValues[index] }); },

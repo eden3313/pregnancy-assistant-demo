@@ -28,7 +28,7 @@ export interface PregnancyOverview {
   reminders: string[];
 }
 
-export type ScheduleType = "meal" | "supplement" | "checkup" | "custom";
+export type ScheduleType = "meal" | "medication" | "supplement" | "checkup" | "custom";
 export interface ScheduleItem {
   id: string;
   date: string;
@@ -37,6 +37,7 @@ export interface ScheduleItem {
   title: string;
   note: string;
   completed: boolean;
+  sourceMedicationId?: string;
 }
 
 export interface ExtractedReportDraft {

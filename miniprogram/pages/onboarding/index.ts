@@ -8,7 +8,7 @@ import type { PersonalProfile } from "../../types/domain";
 Page({
   data: {
     today: todayText(), privacyAccepted: false,
-    form: { lastPeriod: "", babies: "single", risk: "no", riskDetails: "", medications: "" } as PersonalProfile,
+    form: { lastPeriod: "", babies: "single", risk: "no", riskDetails: "", medications: [], legacyMedicationNotes: "" } as PersonalProfile,
   },
   onInput(event: any) { const field = event.currentTarget.dataset.field; this.setData({ [`form.${field}`]: event.detail.value }); },
   onChoice(event: any) { const field = event.currentTarget.dataset.field; this.setData({ [`form.${field}`]: event.detail.value }); },
