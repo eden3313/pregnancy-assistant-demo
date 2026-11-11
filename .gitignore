@@ -7,3 +7,4 @@ dist/
 artifacts/
 miniprogram/project.private.config.json
 release/
+.superpowers/
