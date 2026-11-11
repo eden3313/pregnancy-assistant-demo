@@ -27,3 +27,12 @@ page {
 .button-danger { margin-top: 20rpx; background: white; color: #a14f43; border: 1rpx solid #d9ada6; border-radius: 12rpx; }
 .pill { display: inline-block; border-radius: 999rpx; padding: 6rpx 16rpx; background: var(--green-soft); color: var(--green); font-size: 24rpx; }
 .empty { text-align: center; color: var(--muted); padding: 80rpx 24rpx; }
+.medication-heading { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; }
+.medication-heading .label { margin: 0; }
+.mini-add { flex: none; width: auto; margin: 0; padding: 6rpx 18rpx; background: var(--green-soft); color: var(--green); border-radius: 999rpx; font-size: 24rpx; line-height: 1.8; }
+.medication-help { margin-top: 12rpx; font-size: 24rpx; }
+.medication-card { margin-top: 20rpx; padding: 22rpx; border: 1rpx solid var(--line); border-radius: 14rpx; background: #faf8f4; }
+.relation-row { display: flex; flex-wrap: wrap; gap: 16rpx 24rpx; }
+.relation-row label { display: inline-flex; align-items: center; font-size: 26rpx; }
+.remove-medication { margin: 20rpx 0 0; background: transparent; color: #9b716a; border: 1rpx solid #d9ada6; border-radius: 10rpx; font-size: 24rpx; }
+.medication-empty { padding: 24rpx 0 4rpx; text-align: center; }

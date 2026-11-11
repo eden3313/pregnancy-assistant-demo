@@ -49,6 +49,18 @@ function babyDescription(week: number): string {
   return "宝宝已经接近足月，请按产科安排完成每次检查。";
 }
 
+function babySizeComparison(week: number): PregnancyOverview["babySizeComparison"] {
+  const label = week < 8 ? "约一颗蓝莓大小" :
+    week < 12 ? "约一颗草莓大小" :
+    week < 16 ? "约一个牛油果大小" :
+    week < 20 ? "约一根香蕉大小" :
+    week < 24 ? "约一根玉米大小" :
+    week < 28 ? "约一颗花椰菜大小" :
+    week < 32 ? "约一个椰子大小" :
+    week < 36 ? "约一个哈密瓜大小" : "约一个小南瓜大小";
+  return { label, disclaimer: "仅作直观参考，个体差异较大，以产检结果为准。" };
+}
+
 export function buildPregnancyOverview(profile: PersonalProfile, today = new Date()): PregnancyOverview {
   const error = validateProfile(profile, today);
   if (error) throw new Error(error);
@@ -67,6 +79,6 @@ export function buildPregnancyOverview(profile: PersonalProfile, today = new Dat
     trimester: week < 14 ? "孕早期" : week < 28 ? "孕中期" : "孕晚期",
     gestationalAge: { totalDays, week, day, label: `${week}w+${day}d` },
     progressPercent: Math.min(100, Math.max(0, Math.round(totalDays / TOTAL_DAYS * 100))),
-    babyDescription: babyDescription(week), nextCheckup: nextCheckup(week), reminders,
+    babyDescription: babyDescription(week), babySizeComparison: babySizeComparison(week), nextCheckup: nextCheckup(week), reminders,
   };
 }

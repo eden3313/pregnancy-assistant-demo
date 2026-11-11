@@ -24,6 +24,7 @@ export interface PregnancyOverview {
   gestationalAge: { totalDays: number; week: number; day: number; label: string };
   progressPercent: number;
   babyDescription: string;
+  babySizeComparison: { label: string; disclaimer: string };
   nextCheckup: { title: string; window: string; detail: string };
   reminders: string[];
 }

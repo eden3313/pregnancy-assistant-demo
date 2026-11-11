@@ -7,7 +7,18 @@
     <view class="field"><text class="label">胎数</text><radio-group data-field="babies" bindchange="onChoice"><label class="radio"><radio value="single" checked="{{form.babies === 'single'}}" color="#4d7d68"/>单胎</label><label class="radio"><radio value="twins" checked="{{form.babies === 'twins'}}" color="#4d7d68"/>双胎</label><label class="radio"><radio value="multiple" checked="{{form.babies === 'multiple'}}" color="#4d7d68"/>多胎</label></radio-group></view>
     <view class="field"><text class="label">是否有高危因素</text><radio-group data-field="risk" bindchange="onChoice"><label class="radio"><radio value="no" checked="{{form.risk === 'no'}}" color="#4d7d68"/>无</label><label class="radio"><radio value="yes" checked="{{form.risk === 'yes'}}" color="#4d7d68"/>有</label><label class="radio"><radio value="unknown" checked="{{form.risk === 'unknown'}}" color="#4d7d68"/>不确定</label></radio-group></view>
     <view class="field" wx:if="{{form.risk !== 'no'}}"><text class="label">高危因素记录</text><textarea class="textarea" maxlength="500" data-field="riskDetails" value="{{form.riskDetails}}" bindinput="onInput" placeholder="按医生告知或病历原文填写"/></view>
-    <view class="field"><text class="label">当前正在服用的药物</text><textarea class="textarea" maxlength="1000" data-field="medications" value="{{form.medications}}" bindinput="onInput" placeholder="仅作原文记录，不提供用药建议"/></view>
+    <view class="field medication-section">
+      <view class="medication-heading"><text class="label">用药日程</text><button class="mini-add" bindtap="addMedication">添加药物</button></view>
+      <view class="muted medication-help">请按药品说明书或医生已给出的要求填写；本工具仅记录和提醒。</view>
+      <view class="medication-card" wx:for="{{form.medications}}" wx:key="id">
+        <view class="field"><text class="label">药物名称</text><input class="input" data-index="{{index}}" data-field="name" value="{{item.name}}" bindinput="onMedicationInput" placeholder="按原包装或处方填写"/></view>
+        <view class="field"><text class="label">准确时间</text><picker mode="time" data-index="{{index}}" data-field="time" value="{{item.time}}" bindchange="onMedicationInput"><view class="picker">{{item.time}}</view></picker></view>
+        <view class="field"><text class="label">用户设置的服用关系</text><radio-group class="relation-row" data-index="{{index}}" bindchange="onMedicationRelation"><label><radio value="beforeMeal" checked="{{item.relation === 'beforeMeal'}}" color="#4d7d68"/>饭前</label><label><radio value="withMeal" checked="{{item.relation === 'withMeal'}}" color="#4d7d68"/>随餐</label><label><radio value="afterMeal" checked="{{item.relation === 'afterMeal'}}" color="#4d7d68"/>饭后</label><label><radio value="fixedTime" checked="{{item.relation === 'fixedTime'}}" color="#4d7d68"/>固定时间</label></radio-group></view>
+        <button class="remove-medication" data-index="{{index}}" bindtap="removeMedication">删除这条记录</button>
+      </view>
+      <view class="muted medication-empty" wx:if="{{!form.medications.length}}">没有用药计划时可保持为空。</view>
+      <view class="field" wx:if="{{form.legacyMedicationNotes}}"><text class="label">旧版用药原文记录（不会生成日程）</text><textarea class="textarea" maxlength="1000" data-field="legacyMedicationNotes" value="{{form.legacyMedicationNotes}}" bindinput="onInput"/></view>
+    </view>
   </view>
   <checkbox-group bindchange="onPrivacy"><label class="privacy-check"><checkbox value="accepted" color="#4d7d68"/>我已阅读并同意</label><text class="privacy-link" bindtap="openPrivacy">《隐私说明》</text></checkbox-group>
   <button class="button-primary" bindtap="submit">生成我的孕期状态</button>

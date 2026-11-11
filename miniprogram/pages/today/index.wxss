@@ -4,5 +4,7 @@
 .icon-button { width: 92rpx; padding: 10rpx 0; font-size: 24rpx; color: #4d7d68; background: #e4efe9; border-radius: 12rpx; }
 .progress { height: 12rpx; margin: 18rpx 10rpx 0; background: #e4e0da; border-radius: 999rpx; overflow: hidden; }.progress-bar { height: 100%; background: #e88f7d; border-radius: 999rpx; }
 .checkup { border-left: 8rpx solid #8d7fb5; }.checkup-title { font-size: 36rpx; font-weight: 700; margin-top: 18rpx; }.detail { margin-top: 12rpx; }
-.bullet { margin: 12rpx 0; }.today-row { display: flex; gap: 24rpx; padding: 16rpx 0; border-bottom: 1rpx solid #eeeae4; }.time { color: #4d7d68; font-weight: 650; }.done { text-decoration: line-through; color: #8c928f; }
+.size-compare { margin-top: 22rpx; padding: 20rpx; border-radius: 14rpx; background: linear-gradient(135deg, #f7e8e2, #eef3df); }
+.size-label { color: #7a675f; font-size: 22rpx; font-weight: 650; }.size-value { margin-top: 4rpx; font-size: 34rpx; font-weight: 700; }.size-disclaimer { margin-top: 8rpx; color: #766f6a; font-size: 22rpx; }
+.bullet { margin: 12rpx 0; }.today-row { display: flex; gap: 24rpx; padding: 16rpx 0; border-bottom: 1rpx solid #eeeae4; }.time { flex: none; color: #4d7d68; font-weight: 650; }.task-copy { display: flex; flex-direction: column; }.task-note { color: #6f7c76; font-size: 23rpx; }.done { text-decoration: line-through; color: #8c928f; }
 .footer-link { text-align: center; margin-top: 36rpx; color: #4d7d68; font-size: 24rpx; }
