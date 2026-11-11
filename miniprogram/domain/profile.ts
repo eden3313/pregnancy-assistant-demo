@@ -17,7 +17,17 @@ export function validateProfile(value: PersonalProfile, today = new Date()): str
   if (days > 301) return "该日期已超过 43 周，请核对后再填写。";
   if (!["single", "twins", "multiple"].includes(value.babies)) return "请选择胎数。";
   if (!["no", "yes", "unknown"].includes(value.risk)) return "请选择高危因素情况。";
-  if (value.riskDetails.length > 500 || value.medications.length > 1000) return "输入内容过长，请简要填写。";
+  if (value.riskDetails.length > 500 || value.legacyMedicationNotes.length > 1000) return "输入内容过长，请简要填写。";
+  if (!Array.isArray(value.medications)) return "请重新填写用药记录。";
+  const relations = ["beforeMeal", "withMeal", "afterMeal", "fixedTime"];
+  for (const medication of value.medications) {
+    if (!medication.name.trim()) return "请填写药物名称。";
+    if (medication.name.trim().length > 100) return "药物名称过长，请简要填写。";
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(medication.time)) return "请选择有效的服用时间。";
+    if (!relations.includes(medication.relation)) return "请选择饭前、随餐、饭后或固定时间。";
+    if (!medication.id) return "用药记录编号缺失，请删除后重新添加。";
+  }
+  if (new Set(value.medications.map((item) => item.id)).size !== value.medications.length) return "用药记录编号重复，请删除后重新添加。";
   return "";
 }
 
@@ -51,7 +61,7 @@ export function buildPregnancyOverview(profile: PersonalProfile, today = new Dat
   due.setUTCDate(due.getUTCDate() + TOTAL_DAYS);
   const reminders: string[] = ["记录近期不适和准备向医生确认的问题。", "按预约时间完成产检并保存原始报告。"];
   if (profile.risk !== "no") reminders.unshift("已记录高危因素信息，请在产检时向医生完整说明。");
-  if (profile.medications.trim()) reminders.unshift("已记录当前用药，请携带原包装或处方与医生核对。");
+  if (profile.medications.length || profile.legacyMedicationNotes.trim()) reminders.unshift("已记录当前用药，请携带原包装或处方与医生核对。");
   return {
     dueDate: due.toISOString().slice(0, 10),
     trimester: week < 14 ? "孕早期" : week < 28 ? "孕中期" : "孕晚期",

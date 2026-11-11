@@ -1,12 +1,21 @@
 export type BabyCount = "single" | "twins" | "multiple";
 export type RiskStatus = "no" | "yes" | "unknown";
+export type MedicationRelation = "beforeMeal" | "withMeal" | "afterMeal" | "fixedTime";
+
+export interface MedicationPlan {
+  id: string;
+  name: string;
+  time: string;
+  relation: MedicationRelation;
+}
 
 export interface PersonalProfile {
   lastPeriod: string;
   babies: BabyCount;
   risk: RiskStatus;
   riskDetails: string;
-  medications: string;
+  medications: MedicationPlan[];
+  legacyMedicationNotes: string;
 }
 
 export interface PregnancyOverview {
