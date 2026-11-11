@@ -19,9 +19,10 @@ function walk(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const target = path.join(directory, entry.name);
     if (entry.isDirectory()) walk(target);
-    else if (/\.(ts|json|wxml|wxss)$/.test(entry.name)) {
+    else if (/\.(ts|json|wxml|wxss|md)$/.test(entry.name)) {
       const text = readFileSync(target, 'utf8');
       if (/sk-[A-Za-z0-9_-]{20,}/.test(text) || /OPENAI_API_KEY\s*=\s*[^\s"']+/.test(text) || /AppSecret\s*[:=]\s*[^\s"']+/.test(text)) errors.push(`疑似密钥：${path.relative(root, target)}`);
+      if (/replace-with-your-api-domain|\/api\/extract-report|wx\.request\s*\(|整理报告文字|模型服务|HTTPS API|request[^\n]{0,20}合法域名/.test(text)) errors.push(`审核包包含在线报告解析内容：${path.relative(root, target)}`);
     }
   }
 }

@@ -19,8 +19,3 @@ export function removeSavedFile(path: string): Promise<void> {
   if (!path) return Promise.resolve();
   return new Promise((resolve) => wx.removeSavedFile({ filePath: path, complete: resolve }));
 }
-
-export function readImageDataUrl(path: string): Promise<string> {
-  const ext = extension(path) === "jpg" ? "jpeg" : extension(path);
-  return new Promise((resolve, reject) => wx.getFileSystemManager().readFile({ filePath: path, encoding: "base64", success: (result: any) => resolve(`data:image/${ext};base64,${result.data}`), fail: reject }));
-}
