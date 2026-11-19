@@ -4,6 +4,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseImage, validateInput } from './parser.mjs';
 import { extractReport, validateExtractInput } from './report-extractor.mjs';
+import { extractMedication, validateMedicationInput } from './medication-extractor.mjs';
 
 const CONTENT_TYPES = {
   '.css': 'text/css; charset=utf-8',
@@ -63,7 +64,10 @@ async function serveStatic(req, res, staticDir) {
   }
 }
 
-export function createApiServer({ staticDir } = {}) {
+export function createApiServer({ staticDir, extractMedicationImpl = extractMedication } = {}) {
+  let activeImages = 0;
+  let windowStart = Date.now();
+  let imageRequests = 0;
   return http.createServer(async (req, res) => {
     const send = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(body)); };
     if (!isAllowedOrigin(req)) return send(403, { error: '仅允许同域页面访问。' });
@@ -75,7 +79,12 @@ export function createApiServer({ staticDir } = {}) {
     if (req.method === 'GET' && req.url === '/api/health') return send(200, { ok: true, configured: Boolean(process.env.OPENAI_API_KEY) });
     const isLegacyParse = req.method === 'POST' && req.url === '/api/parse-report';
     const isRecordExtract = req.method === 'POST' && req.url === '/api/extract-report';
-    if (!isLegacyParse && !isRecordExtract) return send(404, { error: '接口不存在。' });
+    const isMedicationExtract = req.method === 'POST' && req.url === '/api/extract-medication';
+    if (!isLegacyParse && !isRecordExtract && !isMedicationExtract) return send(404, { error: '接口不存在。' });
+    if (isMedicationExtract || isRecordExtract) {
+      if (Date.now() - windowStart >= 60000) { windowStart = Date.now(); imageRequests = 0; }
+      if (++imageRequests > 30 || activeImages >= 2) return send(429, { error: '识别服务繁忙，请稍后重试。' });
+    }
     if (!req.headers['content-type']?.startsWith('application/json')) return send(415, { error: '请求必须为 JSON。' });
     let input;
     try {
@@ -87,11 +96,16 @@ export function createApiServer({ staticDir } = {}) {
         chunks.push(chunk);
       }
       input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-      if (isRecordExtract) validateExtractInput(input); else validateInput(input);
+      if (isMedicationExtract) validateMedicationInput(input); else if (isRecordExtract) validateExtractInput(input); else validateInput(input);
     } catch (error) { return send(400, { error: error instanceof SyntaxError ? '请求格式错误。' : error.message }); }
-    if (isRecordExtract) {
-      try { return send(200, await extractReport(input)); }
+    if (isRecordExtract || isMedicationExtract) {
+      if (activeImages >= 2) return send(429, { error: '识别服务繁忙，请稍后重试。' });
+      activeImages++;
+      const controller = new AbortController();
+      res.on('close', () => { if (!res.writableEnded) controller.abort(); });
+      try { return send(200, await (isMedicationExtract ? extractMedicationImpl : extractReport)(input, { signal: controller.signal })); }
       catch (error) { return send(502, { error: ['TimeoutError', 'AbortError'].includes(error.name) ? '解析超时，请重试。' : error.message === 'fetch failed' ? '无法连接文字整理服务。' : error.message }); }
+      finally { activeImages--; }
     }
     res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'X-Content-Type-Options': 'nosniff' });
     const emit = (event) => { if (!res.destroyed) res.write(JSON.stringify(event) + '\n'); };

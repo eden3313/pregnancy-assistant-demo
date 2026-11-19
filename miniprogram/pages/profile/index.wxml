@@ -8,8 +8,11 @@
     <view class="field medication-section">
       <view class="medication-heading"><text class="label">用药日程</text><button class="mini-add" bindtap="addMedication">添加药物</button></view>
       <view class="muted medication-help">请按药品说明书或医生已给出的要求填写；本工具仅记录和提醒。</view>
+      <view class="muted medication-help">排程参考今日三餐：早餐 {{mealTimes.breakfast}} · 午餐 {{mealTimes.lunch}} · 晚餐 {{mealTimes.dinner}}。可先在日程页修改三餐时间。每次服用请单独添加。</view>
       <view class="medication-card" wx:for="{{form.medications}}" wx:key="id">
         <view class="field"><text class="label">药物名称</text><input class="input" data-index="{{index}}" data-field="name" value="{{item.name}}" bindinput="onMedicationInput" placeholder="按原包装或处方填写"/></view>
+        <view class="field"><text class="label">服用要求原文</text><textarea class="textarea" maxlength="300" data-index="{{index}}" data-field="instruction" value="{{item.instruction}}" bindinput="onMedicationInput" placeholder="例如：早餐前30分钟、随午餐、每日20:00"/></view>
+        <button class="button-secondary" data-index="{{index}}" bindtap="recognizeMedication">识别要求并安排时间</button>
         <view class="field"><text class="label">准确时间</text><picker mode="time" data-index="{{index}}" data-field="time" value="{{item.time}}" bindchange="onMedicationInput"><view class="picker">{{item.time}}</view></picker></view>
         <view class="field"><text class="label">用户设置的服用关系</text><radio-group class="relation-row" data-index="{{index}}" bindchange="onMedicationRelation"><label><radio value="beforeMeal" checked="{{item.relation === 'beforeMeal'}}" color="#4d7d68"/>饭前</label><label><radio value="withMeal" checked="{{item.relation === 'withMeal'}}" color="#4d7d68"/>随餐</label><label><radio value="afterMeal" checked="{{item.relation === 'afterMeal'}}" color="#4d7d68"/>饭后</label><label><radio value="fixedTime" checked="{{item.relation === 'fixedTime'}}" color="#4d7d68"/>固定时间</label></radio-group></view>
         <button class="remove-medication" data-index="{{index}}" bindtap="removeMedication">删除这条记录</button>

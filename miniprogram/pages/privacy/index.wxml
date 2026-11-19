@@ -1,1 +1,5 @@
-<view class="page"><view class="page-title">隐私说明</view><view class="card"><view class="section-title">本地资料</view><view>孕期资料、日程、个人记录和用户主动选择的照片附件默认保存在当前微信设备，不会发送到外部服务。清除微信数据、删除小程序或更换设备后可能无法恢复。</view></view><view class="card"><view class="section-title">照片附件</view><view>照片仅用于个人记录和本机查看。你可以在编辑记录时更换照片，也可以删除对应记录或清除全部本地数据。</view></view><view class="card"><view class="section-title">使用边界</view><view>本工具仅用于个人记录与日程管理，不提供医疗诊断、异常判断或个性化用药建议。</view></view></view>
+<view class="page"><view class="page-title">隐私说明</view>
+<view class="card"><view class="section-title">本地资料</view><view>孕期资料、日程、个人文字记录和照片附件默认保存在当前微信设备。清除微信数据、删除小程序或更换设备后可能无法恢复。你可以在“我的资料”中清除本地数据。</view></view>
+<view class="card"><view class="section-title">可选的图片识别</view><view>仅当你主动选择图片并单独确认上传时，所选图片才会通过HTTPS发送到本程序后端，再发送至OpenAI模型服务，用于提取报告文字或药品原文名称、服用时间要求。可能涉及境外处理，服务商政策见 https://openai.com/policies/privacy-policy/ 。无需使用识别功能也可手工记录和安排日程。取消确认不会上传图片。</view></view>
+<view class="card"><view class="section-title">图片和结果的保存</view><view>上传前请遮盖姓名、电话、证件号及地址等无关身份信息。本程序后端不将图片写入磁盘；API请求设置store:false，但服务商仍可能依其政策保留安全监测数据，并不代表零保留。识别临时图片退出页面时删除。识别结果仅在你核对并保存后进入本地记录或用药日程。第三方处理和存储以其实际政策为准。</view></view>
+<view class="card"><view class="section-title">使用边界</view><view>AI识别可能有误，须对照原图核对。本工具不提供医疗诊断、正常异常判断、适用性判断或个性化用药建议，不推断剂量。用药时间按你确认的原文要求转换。正式服务的运营主体、联系方式与具体数据处理事项以微信后台用户隐私保护指引为准。</view></view></view>

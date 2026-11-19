@@ -5,12 +5,33 @@ import { wxStorage } from "../../storage/wx-storage";
 import { makeId, todayText } from "../../utils/date";
 import { removeSavedFile } from "../../services/local-files";
 import type { MedicationPlan, PersonalProfile } from "../../types/domain";
+import { DEFAULT_MEAL_TIMES, parseMedicationTiming } from "../../domain/medication-timing";
 
 const emptyMedication = (): MedicationPlan => ({ id: makeId("medication"), name: "", time: "08:00", relation: "fixedTime" });
 
 Page({
-  data: { today: todayText(), form: null as any },
-  onLoad() { const state = loadAppState(wxStorage); this.setData({ form: state.profile }); },
+  data: { today: todayText(), form: null as any, mealTimes: { ...DEFAULT_MEAL_TIMES } },
+  onLoad() {
+    const state = loadAppState(wxStorage);
+    const mealTimes = { ...DEFAULT_MEAL_TIMES };
+    for (const [key, title] of [["breakfast", "早餐"], ["lunch", "午餐"], ["dinner", "晚餐"]] as const) {
+      const meal = state.schedule.find((item) => item.date === todayText() && item.type === "meal" && item.title === title);
+      if (meal) mealTimes[key] = meal.time;
+    }
+    this.setData({ form: state.profile, mealTimes });
+  },
+  recognizeMedication(event: any) {
+    const index = Number(event.currentTarget.dataset.index);
+    const medication = this.data.form.medications[index] as MedicationPlan;
+    if (!medication.name.trim()) return wx.showToast({ title: "请先填写药物名称", icon: "none" });
+    const result = parseMedicationTiming(medication.instruction || "", this.data.mealTimes);
+    if (!result.ok) return wx.showModal({ title: "请补充时间要求", content: result.message, showCancel: false });
+    wx.showModal({ title: "核对用药日程", content: `${medication.name}：${result.explanation}。确认后填入每日时间，保存资料后生效。此时间不会自动跟随以后修改的三餐时间变化。`, success: (response: any) => {
+      if (!response.confirm) return;
+      const medications = this.data.form.medications.map((item: MedicationPlan) => item.id === medication.id ? { ...item, time: result.time, relation: result.relation } : item);
+      this.setData({ "form.medications": medications });
+    } });
+  },
   onInput(event: any) { this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value }); },
   onChoice(event: any) { this.setData({ [`form.${event.currentTarget.dataset.field}`]: event.detail.value }); },
   addMedication() { this.setData({ "form.medications": [...this.data.form.medications, emptyMedication()] }); },

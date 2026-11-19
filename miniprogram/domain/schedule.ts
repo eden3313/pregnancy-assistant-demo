@@ -26,7 +26,7 @@ function medicationItem(plan: MedicationPlan, date: string): ScheduleItem {
     time: plan.time,
     type: "medication",
     title: plan.name.trim(),
-    note: `用户设置：${medicationRelationLabel(plan.relation)}`,
+    note: `用户设置：${medicationRelationLabel(plan.relation)}${plan.instruction ? `；原文：${plan.instruction}` : ""}`,
     completed: false,
     sourceMedicationId: plan.id,
   };

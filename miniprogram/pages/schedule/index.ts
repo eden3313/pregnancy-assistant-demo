@@ -17,6 +17,7 @@ Page({
     this.setData({ items: state.schedule });
   },
   add() { this.setData({ editing: true, form: emptyForm(), typeIndex: 3 }); },
+  scanMedication() { wx.navigateTo({ url: "/pages/image-assistant/index?kind=medicine" }); },
   edit(event: any) {
     const item = this.data.items.find((entry: ScheduleItem) => entry.id === event.currentTarget.dataset.id);
     if (item?.sourceMedicationId) return wx.showToast({ title: "请在资料中修改用药计划", icon: "none" });

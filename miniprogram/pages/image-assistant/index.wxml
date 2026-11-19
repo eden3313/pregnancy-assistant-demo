@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="page-title">{{kind === 'medicine' ? '拍照录入用药' : '报告文字整理'}}</view>
+  <view class="muted">AI仅提取原文，可能识别错误，请核对后保存。不会判断药物是否适合你或生成诊断。</view>
+  <view class="notice" wx:if="{{!configured}}">识别服务域名尚未配置，暂时无法上传识别。</view>
+  <view class="card">
+    <image wx:if="{{photoPath}}" class="photo" src="{{photoPath}}" mode="aspectFit"/>
+    <button class="button-secondary" disabled="{{busy}}" bindtap="choosePhoto">{{photoPath ? '更换图片' : '拍照或选择图片'}}</button>
+    <button class="button-primary" disabled="{{!photoPath || busy || !configured}}" loading="{{busy}}" bindtap="upload">{{busy ? '正在识别，请稍候' : '确认上传并识别'}}</button>
+    <view class="footer-link" bindtap="openPrivacy">查看图片识别隐私说明</view>
+    <view class="error" wx:if="{{error}}">{{error}} 可点击识别按钮重试。</view>
+  </view>
+  <view class="card" wx:if="{{ready}}">
+    <view class="section-title">核对识别结果</view>
+    <view class="field"><text class="label">识别原文（可修改）</text><textarea class="textarea source" maxlength="6000" data-field="sourceText" value="{{sourceText}}" bindinput="onInput"/></view>
+    <block wx:if="{{kind === 'medicine'}}">
+      <view class="field"><text class="label">药物名称</text><input class="input" maxlength="100" data-field="name" value="{{name}}" bindinput="onInput" placeholder="未识别到时请按原包装填写"/></view>
+      <view class="field"><text class="label">服用时间要求（按原文核对）</text><textarea class="textarea" maxlength="300" data-field="timingText" value="{{timingText}}" bindinput="onInput" placeholder="例如：早餐前30分钟；不明确时请核对医嘱"/></view>
+      <button class="button-secondary" bindtap="calculate">根据要求生成时间</button>
+      <view class="notice" wx:if="{{timingMessage}}">{{timingMessage}}</view>
+      <view class="field"><text class="label">{{timingReady ? '已确认时间（可修改）' : '或手动选择准确时间'}}</text><picker mode="time" value="{{time}}" bindchange="manualTime"><view class="picker">{{timingReady ? time : '请选择时间'}}</view></picker></view>
+      <view class="muted">每次服用分别添加；不会推断剂量。修改三餐后需重新生成时间。保存的是每日固定时间，不会推送微信通知。</view>
+    </block>
+    <view class="field" wx:else><text class="label">记录标题</text><input class="input" maxlength="80" data-field="title" value="{{title}}" bindinput="onInput"/></view>
+    <button class="button-primary" disabled="{{saved || busy}}" bindtap="save">{{saved ? '已保存' : kind === 'medicine' ? '核对并加入每日用药日程' : '核对并保存文字记录'}}</button>
+  </view>
+</view>

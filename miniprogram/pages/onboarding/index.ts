@@ -4,6 +4,7 @@ import { loadAppState, saveAppState } from "../../storage/app-state";
 import { wxStorage } from "../../storage/wx-storage";
 import { makeId, todayText } from "../../utils/date";
 import type { MedicationPlan, PersonalProfile } from "../../types/domain";
+import { DEFAULT_MEAL_TIMES, parseMedicationTiming } from "../../domain/medication-timing";
 
 const emptyMedication = (): MedicationPlan => ({ id: makeId("medication"), name: "", time: "08:00", relation: "fixedTime" });
 
@@ -15,6 +16,17 @@ Page({
   onInput(event: any) { const field = event.currentTarget.dataset.field; this.setData({ [`form.${field}`]: event.detail.value }); },
   onChoice(event: any) { const field = event.currentTarget.dataset.field; this.setData({ [`form.${field}`]: event.detail.value }); },
   addMedication() { this.setData({ "form.medications": [...this.data.form.medications, emptyMedication()] }); },
+  recognizeMedication(event: any) {
+    const index = Number(event.currentTarget.dataset.index);
+    const medication = this.data.form.medications[index] as MedicationPlan;
+    if (!medication.name.trim()) return wx.showToast({ title: "请先填写药物名称", icon: "none" });
+    const result = parseMedicationTiming(medication.instruction || "", DEFAULT_MEAL_TIMES);
+    if (!result.ok) return wx.showModal({ title: "请补充时间要求", content: result.message, showCancel: false });
+    wx.showModal({ title: "核对用药日程", content: `${medication.name}：${result.explanation}。确认后填入每日时间，提交资料后生效。此时间不会自动跟随以后修改的三餐时间变化。`, success: (response: any) => {
+      if (!response.confirm) return;
+      this.setData({ "form.medications": this.data.form.medications.map((item: MedicationPlan) => item.id === medication.id ? { ...item, time: result.time, relation: result.relation } : item) });
+    } });
+  },
   removeMedication(event: any) {
     const index = Number(event.currentTarget.dataset.index);
     this.setData({ "form.medications": this.data.form.medications.filter((_item: MedicationPlan, itemIndex: number) => itemIndex !== index) });

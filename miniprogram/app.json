@@ -6,7 +6,8 @@
     "pages/onboarding/index",
     "pages/profile/index",
     "pages/privacy/index",
-    "pages/record-editor/index"
+    "pages/record-editor/index",
+    "pages/image-assistant/index"
   ],
   "window": {
     "navigationBarTitleText": "孕期日程记录",

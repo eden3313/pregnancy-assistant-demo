@@ -36,6 +36,7 @@ describe("mini program pregnancy profile", () => {
     expect(week14.babySizeComparison.label).toContain("牛油果");
     expect(week26.babySizeComparison.label).toContain("花椰菜");
     expect(week37.babySizeComparison.label).toContain("小南瓜");
-    expect(week14.babySizeComparison.disclaimer).toBe("仅作直观参考，个体差异较大，以产检结果为准。");
+    expect(week14.babySizeComparison.disclaimer).toContain("非实际比例");
+    expect(week14.babySizeComparison.image).toBe("/assets/baby-size/avocado.png");
   });
 });

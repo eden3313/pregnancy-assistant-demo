@@ -26,6 +26,7 @@ export function validateProfile(value: PersonalProfile, today = new Date()): str
     if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(medication.time)) return "请选择有效的服用时间。";
     if (!relations.includes(medication.relation)) return "请选择饭前、随餐、饭后或固定时间。";
     if (!medication.id) return "用药记录编号缺失，请删除后重新添加。";
+    if (medication.instruction && medication.instruction.length > 300) return "服用要求请控制在300字以内。";
   }
   if (new Set(value.medications.map((item) => item.id)).size !== value.medications.length) return "用药记录编号重复，请删除后重新添加。";
   return "";
@@ -58,7 +59,9 @@ function babySizeComparison(week: number): PregnancyOverview["babySizeComparison
     week < 28 ? "约一颗花椰菜大小" :
     week < 32 ? "约一个椰子大小" :
     week < 36 ? "约一个哈密瓜大小" : "约一个小南瓜大小";
-  return { label, disclaimer: "仅作直观参考，个体差异较大，以产检结果为准。" };
+  const images = ["blueberry", "strawberry", "avocado", "banana", "corn", "cauliflower", "coconut", "melon", "pumpkin"];
+  const index = [8, 12, 16, 20, 24, 28, 32, 36].findIndex((limit) => week < limit);
+  return { label, image: `/assets/baby-size/${images[index < 0 ? 8 : index]}.png`, disclaimer: "趣味示意图，非实际比例；个体差异较大，以产检结果为准。" };
 }
 
 export function buildPregnancyOverview(profile: PersonalProfile, today = new Date()): PregnancyOverview {

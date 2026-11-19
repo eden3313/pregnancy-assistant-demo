@@ -1,6 +1,7 @@
 <view class="page">
   <view class="header"><view><text class="eyebrow">个人安排</text><view class="page-title">日程表</view></view><button class="add-button" bindtap="add">＋</button></view>
   <view class="muted">可编辑、删除和勾选完成；饮食内容是通用搭配示例。</view>
+  <button class="button-secondary" bindtap="scanMedication">拍照识别药品与服用要求</button>
   <view class="card" wx:if="{{editing}}">
     <view class="section-title">{{form.id ? '编辑日程' : '新增日程'}}</view>
     <view class="field"><text class="label">日期</text><picker mode="date" value="{{form.date}}" data-field="date" bindchange="onInput"><view class="picker">{{form.date}}</view></picker></view>

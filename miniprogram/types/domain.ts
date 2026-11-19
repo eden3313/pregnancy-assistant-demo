@@ -7,6 +7,7 @@ export interface MedicationPlan {
   name: string;
   time: string;
   relation: MedicationRelation;
+  instruction?: string;
 }
 
 export interface PersonalProfile {
@@ -24,7 +25,7 @@ export interface PregnancyOverview {
   gestationalAge: { totalDays: number; week: number; day: number; label: string };
   progressPercent: number;
   babyDescription: string;
-  babySizeComparison: { label: string; disclaimer: string };
+  babySizeComparison: { label: string; disclaimer: string; image: string };
   nextCheckup: { title: string; window: string; detail: string };
   reminders: string[];
 }
